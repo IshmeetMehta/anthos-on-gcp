@@ -40,6 +40,7 @@ module "gke" {
   subnetwork                        = each.value.subnet_name 
   ip_range_pods                     = each.value.secondary_ranges_pods_name
   ip_range_services                 = each.value.secondary_ranges_services_name
+  config_connector                  = true
   # network                           = module.vpc.network_name.
   # subnetwork                        = module.vpc.subnet_name[each.value.subnet_name]
   # ip_range_pods                     = module.vpc.secondary_ranges_pods_name[each.value.secondary_ranges_pods_name]
@@ -111,11 +112,11 @@ module "gke" {
 }
 
 module "wi" {
-  # depends_on          = [google_gke_hub_feature_membership.feature_member]
-  depends_on          = [module.gke.cluster_id]
+  depends_on          = [google_gke_hub_feature_membership.feature_member]
+  # depends_on          = [module.gke.cluster_id]
   source              = "terraform-google-modules/kubernetes-engine/google//modules/workload-identity"
   version             = "~> 16.0.1"
-  gcp_sa_name         = "cnrmsa-${each.value.gke_cluster_name}"
+  gcp_sa_name         = "cnrmsa-${module.gke[each.key].name}"
   for_each            = var.regions
   cluster_name        = each.value.gke_cluster_name
   name                = "cnrm-controller-manager"
