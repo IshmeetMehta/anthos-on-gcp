@@ -22,13 +22,14 @@ module "enabled_google_apis" {
     "cloudresourcemanager.googleapis.com",
     "sqladmin.googleapis.com"
   ]
+  depends_on = [time_sleep.wait_120_seconds]
 }
 
 
 module "gke" {
   depends_on                        = [module.vpc.subnets_names]
   for_each                          = var.regions
-  source                            = "terraform-google-modules/kubernetes-engine/google"
+  source                            = "terraform-google-modules/kubernetes-engine/google//modules/beta-public-cluster"
   version                           = "~> 16.0"
   project_id                        = module.enabled_google_apis.project_id
   name                              = each.value.gke_cluster_name
